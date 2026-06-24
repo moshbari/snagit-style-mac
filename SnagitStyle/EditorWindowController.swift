@@ -8,12 +8,16 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
     // Keep controllers alive while their windows are open.
     private static var openControllers: [EditorWindowController] = []
 
+    /// The PNG this capture was auto-saved to, so "Save" can update it in place.
+    private let fileURL: URL?
+
     private var textField: NSTextField?
     private var textPoint: CGPoint = .zero
 
     private let toolLabels = ["Select", "Arrow", "Rect", "Oval", "Mark", "Blur", "Text", "Step"]
 
-    init(image: NSImage) {
+    init(image: NSImage, fileURL: URL? = nil) {
+        self.fileURL = fileURL
         canvas = CanvasView(image: image)
 
         let fit = EditorWindowController.fitSize(image.size)
@@ -57,11 +61,14 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
 
         let undoButton = NSButton(title: "Undo", target: self, action: #selector(undo(_:)))
         let copyButton = NSButton(title: "Copy", target: self, action: #selector(copyImage(_:)))
-        let saveButton = NSButton(title: "Save…", target: self, action: #selector(save(_:)))
+        let saveButton = NSButton(title: "Save", target: self, action: #selector(save(_:)))
+        let exportButton = NSButton(title: "Export…", target: self, action: #selector(export(_:)))
         copyButton.keyEquivalent = "c"
         copyButton.keyEquivalentModifierMask = [.command]
         saveButton.keyEquivalent = "s"
         saveButton.keyEquivalentModifierMask = [.command]
+        exportButton.keyEquivalent = "s"
+        exportButton.keyEquivalentModifierMask = [.command, .shift]
         undoButton.keyEquivalent = "z"
         undoButton.keyEquivalentModifierMask = [.command]
 
@@ -70,7 +77,7 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
         spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         let bar = NSStackView(views: [tools, colorWell, widthSlider, spacer,
-                                      undoButton, copyButton, saveButton])
+                                      undoButton, copyButton, saveButton, exportButton])
         bar.orientation = .horizontal
         bar.alignment = .centerY
         bar.spacing = 8
@@ -146,7 +153,18 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
         pasteboard.writeObjects([canvas.flattened()])
     }
 
+    /// Save updates the capture's file in the save folder (and refreshes the
+    /// tray). If there's no tracked file, it falls back to Export.
     @objc private func save(_ sender: Any?) {
+        if let fileURL = fileURL {
+            CaptureStore.shared.update(fileURL, with: canvas.flattened())
+        } else {
+            export(sender)
+        }
+    }
+
+    /// Export… lets the user pick a destination via a save panel.
+    @objc private func export(_ sender: Any?) {
         let image = canvas.flattened()
         guard let tiff = image.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff),
@@ -154,11 +172,12 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
 
         let panel = NSSavePanel()
         panel.allowedContentTypes = [UTType.png]
-        panel.nameFieldStringValue = "Capture.png"
-        panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+        panel.nameFieldStringValue = fileURL?.lastPathComponent ?? "Capture.png"
+        panel.directoryURL = Settings.shared.saveFolder
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             try? png.write(to: url)
+            CaptureStore.shared.reload()
         }
     }
 

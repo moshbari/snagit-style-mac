@@ -17,6 +17,15 @@ Two things must stay in sync:
 
 Frameworks: **Cocoa, CoreImage** (blur via `CIPixellate`), **Carbon** (global hotkeys). The entry point is a `@main enum` in `SnagitStyleApp.swift` — required because `-parse-as-library` forbids top-level code.
 
+### App icon
+
+`SnagitStyle/AppIcon.icns` is generated, not hand-drawn. To regenerate:
+```bash
+swift tools/make_icon.swift /tmp/snagit.iconset
+iconutil -c icns /tmp/snagit.iconset -o SnagitStyle/AppIcon.icns
+```
+`Info.plist` sets `CFBundleIconFile = AppIcon`; `install.sh` copies the `.icns` into `Contents/Resources/`. The committed `.icns` is the source of truth for installs — regenerate and recommit if you change the artwork. macOS caches icons aggressively; a reinstall + relaunch (or `killall Dock`) may be needed to see changes.
+
 ## Permissions
 
 - **Screen Recording** is required (macOS gates `screencapture` behind it). It prompts on first capture; the app must be **quit and relaunched** after granting before capture works. Call this out in any post-install report.
@@ -30,13 +39,16 @@ Frameworks: **Cocoa, CoreImage** (blur via `CIPixellate`), **Carbon** (global ho
 - **Export** uses `bitmapImageRepForCachingDisplay` + `cacheDisplay`, which captures at backing (Retina) scale. The selection outline is cleared before export so it isn't baked in.
 - **Undo** is a manual snapshot stack of deep-copied annotations (`Annotation.copy()`), capped at 50. Reference-type annotations are mutated in place during drag, so snapshots must deep-copy.
 - **Tool ↔ segment mapping:** `NSSegmentedControl` segment index equals `Tool.rawValue` (select=0 … step=7). If you reorder `Tool` or the segment labels, keep them aligned.
+- **Tray drag-out:** `ThumbnailItemView` drags the capture's **file URL** (`url as NSURL`), so it drops as a real `.png` in other apps. This depends on captures being saved to disk — `CaptureStore` auto-saves every capture to the save folder, and the editor's "Save" overwrites that same file. Don't switch the editor to clipboard-only or the tray loses its source files.
+- **Settings → re-register:** changing a hotkey or the save folder posts `Settings.didChange`; `AppDelegate` calls `HotKeyCenter.reset()` then re-registers and rebuilds the menu. `HotKeyCenter.reset()` must `UnregisterEventHotKey` every ref or old hotkeys leak and double-fire.
+- **Hotkey recording:** `HotKeyRecorderField` stores `NSEvent.keyCode` directly — it's the same virtual keycode `RegisterEventHotKey` wants. It requires at least one of ⌘/⌃/⌥ so we never hijack a bare key. Esc cancels recording.
 
 ## Things NOT to do
 
 - Don't commit `.env` — it holds the GitHub token and is git-ignored. Never paste tokens into chat or commits.
 - Don't add an Accessibility permission flow (see above).
 - Don't `git push --force` without asking.
-- Don't add features the user didn't ask for. v1 scope is capture + annotate. Screen recording (video/GIF) and scrolling capture were explicitly deferred.
+- Don't add features the user didn't ask for. Current scope: capture + annotate, a draggable recent-captures tray, a configurable save folder, and customizable hotkeys. Screen recording (video/GIF) and scrolling capture remain explicitly deferred.
 
 ## Commit conventions
 

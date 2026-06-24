@@ -40,8 +40,11 @@ if [ ! -d "$SRC" ]; then
     exit 1
 fi
 
-# 3. Info.plist
+# 3. Info.plist + app icon
 cp "$SRC/Info.plist" "$APP/Contents/Info.plist"
+if [ -f "$SRC/AppIcon.icns" ]; then
+    cp "$SRC/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+fi
 
 # 4. Compile
 echo "🔨 Compiling (about 15-30 seconds)..."
@@ -54,10 +57,15 @@ swiftc \
     -framework Carbon \
     -parse-as-library \
     -O \
+    "$SRC/Settings.swift" \
+    "$SRC/CaptureStore.swift" \
     "$SRC/Annotation.swift" \
     "$SRC/HotKeyCenter.swift" \
+    "$SRC/HotKeyRecorderField.swift" \
     "$SRC/CaptureService.swift" \
     "$SRC/CanvasView.swift" \
+    "$SRC/ThumbnailTrayController.swift" \
+    "$SRC/SettingsWindowController.swift" \
     "$SRC/EditorWindowController.swift" \
     "$SRC/AppDelegate.swift" \
     "$SRC/SnagitStyleApp.swift"

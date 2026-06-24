@@ -8,6 +8,7 @@ final class HotKeyCenter {
     static let shared = HotKeyCenter()
 
     private var handlers: [UInt32: () -> Void] = [:]
+    private var refs: [EventHotKeyRef] = []
     private var nextID: UInt32 = 1
     private var installed = false
 
@@ -20,6 +21,15 @@ final class HotKeyCenter {
         var ref: EventHotKeyRef?
         let hotKeyID = EventHotKeyID(signature: OSType(0x53_47_54_48), id: id) // 'SGTH'
         RegisterEventHotKey(keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &ref)
+        if let ref = ref { refs.append(ref) }
+    }
+
+    /// Unregister every hotkey so they can be re-registered from current settings.
+    func reset() {
+        for ref in refs { UnregisterEventHotKey(ref) }
+        refs.removeAll()
+        handlers.removeAll()
+        nextID = 1
     }
 
     private func installHandlerIfNeeded() {
