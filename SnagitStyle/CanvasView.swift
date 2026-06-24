@@ -23,9 +23,13 @@ final class CanvasView: NSView {
     private var draft: Annotation?
     private var selected: Annotation?
     private var moving = false
+    private var erasingObjects = false
     private var lastPoint: CGPoint = .zero
     private var stepCounter = 1
     private var undoStack: [[Annotation]] = []
+
+    /// The pixel eraser feels like an eraser, so it's chunkier than the stroke width.
+    private var eraserWidth: CGFloat { max(lineWidth * 3, 18) }
 
     override var isFlipped: Bool { true }            // top-left origin, matches image
     override var acceptsFirstResponder: Bool { true }
@@ -81,8 +85,21 @@ final class CanvasView: NSView {
         case .blur:      drawBlur(a)
         case .text:      drawText(a)
         case .step:      drawStep(a)
-        case .select:    break
+        case .erasePixels: drawFreehand(a, color: .white)
+        case .select, .eraseObject: break
         }
+    }
+
+    private func drawFreehand(_ a: Annotation, color: NSColor) {
+        guard a.points.count > 1 else { return }
+        let path = NSBezierPath()
+        path.lineWidth = a.lineWidth
+        path.lineCapStyle = .round
+        path.lineJoinStyle = .round
+        path.move(to: a.points[0])
+        for point in a.points.dropFirst() { path.line(to: point) }
+        color.setStroke()
+        path.stroke()
     }
 
     private func stroke(_ path: NSBezierPath, _ a: Annotation) {
@@ -175,6 +192,13 @@ final class CanvasView: NSView {
                                           stepNumber: stepCounter))
             stepCounter += 1
             needsDisplay = true
+        case .eraseObject:
+            snapshot()                 // one undo step for the whole erase gesture
+            erasingObjects = true
+            eraseObjects(at: p)
+        case .erasePixels:
+            draft = Annotation(type: .erasePixels, start: p, end: p,
+                               color: .white, lineWidth: eraserWidth, points: [p])
         default:
             draft = Annotation(type: currentTool, start: p, end: p,
                                color: strokeColor, lineWidth: lineWidth)
@@ -187,16 +211,30 @@ final class CanvasView: NSView {
             s.translate(dx: p.x - lastPoint.x, dy: p.y - lastPoint.y)
             lastPoint = p
             needsDisplay = true
+        } else if erasingObjects {
+            eraseObjects(at: p)
         } else if let d = draft {
-            d.end = p
+            if d.type == .erasePixels {
+                d.points.append(p)
+            } else {
+                d.end = p
+            }
             needsDisplay = true
         }
     }
 
+    /// Remove any annotation under the point (used by the object eraser).
+    private func eraseObjects(at point: CGPoint) {
+        let before = annotations.count
+        annotations.removeAll { $0.boundingRect.contains(point) }
+        if annotations.count != before { needsDisplay = true }
+    }
+
     override func mouseUp(with event: NSEvent) {
         if let d = draft {
-            // Discard zero-size shapes (an accidental click); arrows always count.
-            if d.type == .arrow || d.rect.width > 3 || d.rect.height > 3 {
+            let isStroke = (d.type == .erasePixels && d.points.count > 1)
+            // Discard zero-size shapes (an accidental click); arrows/strokes always count.
+            if d.type == .arrow || isStroke || d.rect.width > 3 || d.rect.height > 3 {
                 snapshot()
                 annotations.append(d)
             }
@@ -204,6 +242,7 @@ final class CanvasView: NSView {
             needsDisplay = true
         }
         moving = false
+        erasingObjects = false
     }
 
     override func keyDown(with event: NSEvent) {

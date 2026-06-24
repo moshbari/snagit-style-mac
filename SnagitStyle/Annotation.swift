@@ -1,7 +1,7 @@
 import AppKit
 
 enum Tool: Int, CaseIterable {
-    case select, arrow, rectangle, ellipse, highlight, blur, text, step
+    case select, arrow, rectangle, ellipse, highlight, blur, text, step, eraseObject, erasePixels
 }
 
 /// One annotation drawn on top of the captured image.
@@ -14,6 +14,7 @@ final class Annotation {
     var lineWidth: CGFloat
     var text: String
     var stepNumber: Int
+    var points: [CGPoint]   // freehand path (pixel eraser)
 
     init(type: Tool,
          start: CGPoint,
@@ -21,7 +22,8 @@ final class Annotation {
          color: NSColor,
          lineWidth: CGFloat,
          text: String = "",
-         stepNumber: Int = 0) {
+         stepNumber: Int = 0,
+         points: [CGPoint] = []) {
         self.type = type
         self.start = start
         self.end = end
@@ -29,16 +31,18 @@ final class Annotation {
         self.lineWidth = lineWidth
         self.text = text
         self.stepNumber = stepNumber
+        self.points = points
     }
 
     func copy() -> Annotation {
         Annotation(type: type, start: start, end: end, color: color,
-                   lineWidth: lineWidth, text: text, stepNumber: stepNumber)
+                   lineWidth: lineWidth, text: text, stepNumber: stepNumber, points: points)
     }
 
     func translate(dx: CGFloat, dy: CGFloat) {
         start.x += dx; start.y += dy
         end.x += dx; end.y += dy
+        points = points.map { CGPoint(x: $0.x + dx, y: $0.y + dy) }
     }
 
     /// Normalized rect from the two drag points (for rect/ellipse/highlight/blur).
@@ -61,6 +65,11 @@ final class Annotation {
         case .step:
             let d = stepDiameter
             return CGRect(x: start.x - d / 2 - 2, y: start.y - d / 2 - 2, width: d + 4, height: d + 4)
+        case .erasePixels:
+            guard let first = points.first else { return .zero }
+            var box = CGRect(origin: first, size: .zero)
+            for p in points { box = box.union(CGRect(origin: p, size: .zero)) }
+            return box.insetBy(dx: -lineWidth, dy: -lineWidth)
         default:
             return rect.insetBy(dx: -lineWidth - 4, dy: -lineWidth - 4)
         }

@@ -52,6 +52,41 @@ final class ThumbnailItemView: NSView, NSDraggingSource {
         if event.clickCount == 2 { onDoubleClick?() }
     }
 
+    // Right-click menu — Snagit-style "open the folder" plus quick actions.
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = NSMenu()
+        menu.addItem(withTitle: "Open in Editor", action: #selector(openInEditor), keyEquivalent: "")
+        menu.addItem(withTitle: "Reveal in Finder", action: #selector(revealInFinder), keyEquivalent: "")
+        menu.addItem(withTitle: "Open Save Folder", action: #selector(openFolder), keyEquivalent: "")
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Copy Image", action: #selector(copyImage), keyEquivalent: "")
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Move to Trash", action: #selector(moveToTrash), keyEquivalent: "")
+        menu.items.forEach { $0.target = self }
+        return menu
+    }
+
+    @objc private func openInEditor() { onDoubleClick?() }
+
+    @objc private func revealInFinder() {
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    @objc private func openFolder() {
+        NSWorkspace.shared.open(url.deletingLastPathComponent())
+    }
+
+    @objc private func copyImage() {
+        guard let image = NSImage(contentsOf: url) else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.writeObjects([image])
+    }
+
+    @objc private func moveToTrash() {
+        try? FileManager.default.trashItem(at: url, resultingItemURL: nil)
+        CaptureStore.shared.reload()
+    }
+
     func draggingSession(_ session: NSDraggingSession,
                          sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
         .copy

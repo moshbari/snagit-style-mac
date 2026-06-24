@@ -14,7 +14,7 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
     private var textField: NSTextField?
     private var textPoint: CGPoint = .zero
 
-    private let toolLabels = ["Select", "Arrow", "Rect", "Oval", "Mark", "Blur", "Text", "Step"]
+    private let toolLabels = ["Select", "Arrow", "Rect", "Oval", "Mark", "Blur", "Text", "Step", "Erase Obj", "Erase Px"]
 
     init(image: NSImage, fileURL: URL? = nil) {
         self.fileURL = fileURL

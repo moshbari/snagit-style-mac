@@ -16,10 +16,12 @@ A lightweight native macOS menu-bar screenshot tool with a built-in annotation e
   - **Blur / redact** (pixelates a region — great for hiding sensitive info)
   - **Text** callouts
   - **Step numbers** (auto-incrementing badges, just like Snagit)
+  - **Erase Object** — click/drag over annotations to remove them
+  - **Erase Pixels** — freehand white eraser brush over the image
 - **Select tool** to move annotations; **Delete** key removes the selected one
 - **Color picker** and **line-width** slider
 - **Undo** (`⌘Z`), **Copy** to clipboard (`⌘C`), **Save** to your folder (`⌘S`), **Export…** (`⇧⌘S`)
-- **Recent Captures tray** — every capture appears as a thumbnail you can **drag straight into any app** (Finder, Slack, Mail…) where it drops as a real `.png` file, just like Snagit
+- **Recent Captures tray** — every capture appears as a thumbnail you can **drag straight into any app** (Finder, Slack, Mail…) where it drops as a real `.png` file, just like Snagit. **Right-click** a thumbnail to Reveal in Finder, open the save folder, copy, or trash it; **double-click** to reopen in the editor
 - **Configurable save folder** — pick where captures are saved (Settings)
 - **Customizable hotkeys** — record your own shortcuts for each capture mode (Settings)
 - **Menu-bar only** — no Dock icon, minimal footprint
