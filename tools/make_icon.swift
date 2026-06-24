@@ -1,9 +1,9 @@
 import AppKit
 
-// Renders the Snagit Style app icon: a blue→purple rounded tile with white
+// Renders the HuzaifaShot app icon: a blue→purple rounded tile with white
 // viewfinder corner brackets and an amber annotation arrow. Run with:
 //   swift tools/make_icon.swift <output.iconset-dir>
-// then: iconutil -c icns <dir> -o SnagitStyle/AppIcon.icns
+// then: iconutil -c icns <dir> -o HuzaifaShot/AppIcon.icns
 
 func drawIcon(size s: CGFloat) -> NSBitmapImageRep {
     let rep = NSBitmapImageRep(bitmapDataPlanes: nil,

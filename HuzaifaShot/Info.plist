@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Snagit Style</string>
+    <string>HuzaifaShot</string>
     <key>CFBundleDisplayName</key>
-    <string>Snagit Style</string>
+    <string>HuzaifaShot</string>
     <key>CFBundleIdentifier</key>
-    <string>com.moshbari.snagitstyle</string>
+    <string>com.moshbari.huzaifashot</string>
     <key>CFBundleExecutable</key>
-    <string>SnagitStyle</string>
+    <string>HuzaifaShot</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundlePackageType</key>

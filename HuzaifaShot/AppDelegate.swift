@@ -10,7 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         CaptureStore.shared.reload()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        idleIcon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "Snagit Style")
+        idleIcon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "HuzaifaShot")
         statusItem.button?.image = idleIcon
 
         rebuildMenu()
@@ -55,7 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(withTitle: "Show Recent Captures", action: #selector(showTray), keyEquivalent: "")
         menu.addItem(withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit Snagit Style", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: "Quit HuzaifaShot", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
     }
 
@@ -100,11 +100,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let alert = NSAlert()
         alert.messageText = "Screen Recording permission needed"
         alert.informativeText = """
-        Snagit Style needs Screen Recording permission to capture your screen.
+        HuzaifaShot needs Screen Recording permission to capture your screen.
 
-        1. In the window that opens, enable SnagitStyle under Screen Recording.
-        2. Remove any older "SnagitStyle" entry first (it points to a previous build).
-        3. Quit and reopen Snagit Style from the menu bar.
+        1. In the window that opens, enable HuzaifaShot under Screen Recording.
+        2. Remove any older "HuzaifaShot" entry first (it points to a previous build).
+        3. Quit and reopen HuzaifaShot from the menu bar.
         """
         alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "Later")

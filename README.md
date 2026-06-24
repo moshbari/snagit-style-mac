@@ -1,6 +1,6 @@
-# 📸 Snagit Style
+# 📸 HuzaifaShot
 
-A lightweight native macOS menu-bar screenshot tool with a built-in annotation editor — a small, open-source take on [Snagit](https://www.techsmith.com/screen-capture.html).
+A lightweight, open-source native macOS menu-bar screenshot tool with a built-in annotation editor. Inspired by commercial capture apps like Snagit® (a trademark of TechSmith, not affiliated with this project).
 
 ![macOS](https://img.shields.io/badge/macOS-13.0+-blue) ![Swift](https://img.shields.io/badge/Swift-5.9+-orange) ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -29,8 +29,8 @@ A lightweight native macOS menu-bar screenshot tool with a built-in annotation e
 ## Quick Install (Terminal)
 
 ```bash
-git clone https://github.com/moshbari/snagit-style-mac.git
-cd snagit-style-mac
+git clone https://github.com/moshbari/huzaifashot-mac.git
+cd huzaifashot-mac
 bash install.sh
 ```
 
@@ -64,13 +64,13 @@ This compiles the app with `swiftc` and installs it to `/Applications` (or your 
 |-----------|-----|-----------|
 | Screen Recording | macOS gates all screen capture behind it | Yes (macOS prompts on first capture) |
 
-Grant it under **System Settings → Privacy & Security → Screen Recording**, then quit and reopen Snagit Style from the menu bar. Global hotkeys use the Carbon API and do **not** require Accessibility permission.
+Grant it under **System Settings → Privacy & Security → Screen Recording**, then quit and reopen HuzaifaShot from the menu bar. Global hotkeys use the Carbon API and do **not** require Accessibility permission.
 
 ## Architecture
 
 ```
-SnagitStyle/
-├── SnagitStyleApp.swift          → @main entry (accessory / menu-bar app)
+HuzaifaShot/
+├── HuzaifaShotApp.swift          → @main entry (accessory / menu-bar app)
 ├── AppDelegate.swift             → menu bar item, hotkeys, capture → editor flow
 ├── Settings.swift                → save folder + hotkey prefs (UserDefaults)
 ├── CaptureStore.swift            → tracks saved PNGs, notifies the tray

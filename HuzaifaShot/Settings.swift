@@ -18,7 +18,7 @@ struct HotKeySpec: Codable, Equatable {
 /// and rebuilds the menu.
 final class Settings {
     static let shared = Settings()
-    static let didChange = Notification.Name("SnagitSettingsDidChange")
+    static let didChange = Notification.Name("HuzaifaShotSettingsDidChange")
 
     private let defaults = UserDefaults.standard
     private enum Key {
@@ -33,7 +33,7 @@ final class Settings {
     static var defaultSaveFolder: URL {
         let base = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser
-        return base.appendingPathComponent("Snagit Style", isDirectory: true)
+        return base.appendingPathComponent("HuzaifaShot", isDirectory: true)
     }
 
     var saveFolder: URL {

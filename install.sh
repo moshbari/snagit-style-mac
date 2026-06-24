@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================
-#  Snagit Style — One-Paste Installer
+#  HuzaifaShot — One-Paste Installer
 #  Builds the app with swiftc and installs it to /Applications
 #  (falls back to ~/Desktop if /Applications isn't writable).
 #  Requires Xcode (for the Swift compiler). No Homebrew/Node needed.
@@ -10,7 +10,7 @@
 set -e
 
 echo ""
-echo "📸  Snagit Style installer"
+echo "📸  HuzaifaShot installer"
 echo ""
 
 # 1. Check toolchain
@@ -28,15 +28,15 @@ echo "   ✅ Swift compiler found."
 
 # 2. Build folder
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BUILD_DIR="$HOME/.snagitstyle-build"
-APP="$BUILD_DIR/SnagitStyle.app"
+BUILD_DIR="$HOME/.huzaifashot-build"
+APP="$BUILD_DIR/HuzaifaShot.app"
 rm -rf "$BUILD_DIR"
 mkdir -p "$APP/Contents/MacOS"
 mkdir -p "$APP/Contents/Resources"
 
-SRC="$SCRIPT_DIR/SnagitStyle"
+SRC="$SCRIPT_DIR/HuzaifaShot"
 if [ ! -d "$SRC" ]; then
-    echo "⚠️  Cannot find the SnagitStyle source folder. Run this from the repo root."
+    echo "⚠️  Cannot find the HuzaifaShot source folder. Run this from the repo root."
     exit 1
 fi
 
@@ -49,7 +49,7 @@ fi
 # 4. Compile
 echo "🔨 Compiling (about 15-30 seconds)..."
 swiftc \
-    -o "$APP/Contents/MacOS/SnagitStyle" \
+    -o "$APP/Contents/MacOS/HuzaifaShot" \
     -target "$(uname -m)-apple-macosx13.0" \
     -sdk "$(xcrun --sdk macosx --show-sdk-path)" \
     -framework Cocoa \
@@ -70,20 +70,20 @@ swiftc \
     "$SRC/SettingsWindowController.swift" \
     "$SRC/EditorWindowController.swift" \
     "$SRC/AppDelegate.swift" \
-    "$SRC/SnagitStyleApp.swift"
+    "$SRC/HuzaifaShotApp.swift"
 echo "   ✅ Compiled."
 
 # 5. Install
 if [ -w "/Applications" ]; then
-    DEST="/Applications/SnagitStyle.app"
+    DEST="/Applications/HuzaifaShot.app"
     LOCATION="/Applications"
 else
-    DEST="$HOME/Desktop/SnagitStyle.app"
+    DEST="$HOME/Desktop/HuzaifaShot.app"
     LOCATION="Desktop"
     echo "   ℹ️  /Applications not writable — installing to Desktop."
 fi
 
-osascript -e 'tell application "SnagitStyle" to quit' 2>/dev/null || true
+osascript -e 'tell application "HuzaifaShot" to quit' 2>/dev/null || true
 sleep 1
 rm -rf "$DEST"
 cp -R "$APP" "$DEST"
@@ -93,17 +93,17 @@ rm -rf "$BUILD_DIR"
 codesign --force --deep --sign - "$DEST" 2>/dev/null || true
 
 echo ""
-echo "🎉 Installed to $LOCATION/SnagitStyle.app"
+echo "🎉 Installed to $LOCATION/HuzaifaShot.app"
 echo ""
 echo "Hotkeys:  ⌃⌘1 region   ⌃⌘2 window   ⌃⌘3 full screen"
 echo "The camera icon lives in your menu bar."
 echo ""
 echo "ℹ️  First capture: macOS may ask for Screen Recording permission"
 echo "   (System Settings → Privacy & Security → Screen Recording). Allow it,"
-echo "   then quit and reopen SnagitStyle from the menu bar."
+echo "   then quit and reopen HuzaifaShot from the menu bar."
 echo ""
 
-read -p "🚀 Launch Snagit Style now? (y/n): " LAUNCH
+read -p "🚀 Launch HuzaifaShot now? (y/n): " LAUNCH
 if [[ "$LAUNCH" == "y" || "$LAUNCH" == "Y" ]]; then
     open "$DEST"
 fi

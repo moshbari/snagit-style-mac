@@ -2,13 +2,13 @@ import Foundation
 
 /// Lightweight file logger so capture/hotkey behavior can be diagnosed even
 /// when the app is launched normally (via Finder), where stderr is invisible.
-/// Writes to ~/Library/Logs/SnagitStyle.log and also mirrors to NSLog.
+/// Writes to ~/Library/Logs/HuzaifaShot.log and also mirrors to NSLog.
 enum Diag {
     static let url = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent("Library/Logs/SnagitStyle.log")
+        .appendingPathComponent("Library/Logs/HuzaifaShot.log")
 
     static func log(_ message: String) {
-        NSLog("[SnagitStyle] \(message)")
+        NSLog("[HuzaifaShot] \(message)")
         let line = "\(Date()) \(message)\n"
         guard let data = line.data(using: .utf8) else { return }
         if let handle = try? FileHandle(forWritingTo: url) {

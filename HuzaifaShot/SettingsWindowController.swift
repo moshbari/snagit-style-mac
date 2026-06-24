@@ -12,7 +12,7 @@ final class SettingsWindowController: NSWindowController {
         let win = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 480, height: 280),
                            styleMask: [.titled, .closable],
                            backing: .buffered, defer: false)
-        win.title = "Snagit Style Settings"
+        win.title = "HuzaifaShot Settings"
         super.init(window: win)
         build()
     }

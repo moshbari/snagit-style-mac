@@ -12,7 +12,7 @@ enum CaptureMode {
 /// macOS prompts automatically.
 enum CaptureService {
     static func capture(_ mode: CaptureMode, completion: @escaping (NSImage?) -> Void) {
-        let path = NSTemporaryDirectory() + "snagit-\(UUID().uuidString).png"
+        let path = NSTemporaryDirectory() + "huzaifashot-\(UUID().uuidString).png"
         let args: [String]
         switch mode {
         case .region:     args = ["-i", "-o", path]

@@ -26,7 +26,7 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate {
                                                height: fit.height + toolbarHeight),
                            styleMask: [.titled, .closable, .resizable, .miniaturizable],
                            backing: .buffered, defer: false)
-        win.title = "Snagit Style — Editor"
+        win.title = "HuzaifaShot — Editor"
         win.minSize = CGSize(width: 480, height: 320)
 
         super.init(window: win)

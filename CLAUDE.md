@@ -1,4 +1,4 @@
-# Snagit Style — Standing Instructions for Claude
+# HuzaifaShot — Standing Instructions for Claude
 
 Native macOS menu-bar screenshot + annotation app. Pure AppKit, no SwiftUI, no third-party deps. Read this before editing.
 
@@ -12,17 +12,17 @@ Two things must stay in sync:
    swiftc -o /tmp/x -target "$(uname -m)-apple-macosx13.0" \
      -sdk "$(xcrun --sdk macosx --show-sdk-path)" \
      -framework Cocoa -framework CoreImage -framework Carbon \
-     -parse-as-library -O SnagitStyle/*.swift
+     -parse-as-library -O HuzaifaShot/*.swift
    ```
 
-Frameworks: **Cocoa, CoreImage** (blur via `CIPixellate`), **Carbon** (global hotkeys). The entry point is a `@main enum` in `SnagitStyleApp.swift` — required because `-parse-as-library` forbids top-level code.
+Frameworks: **Cocoa, CoreImage** (blur via `CIPixellate`), **Carbon** (global hotkeys). The entry point is a `@main enum` in `HuzaifaShotApp.swift` — required because `-parse-as-library` forbids top-level code.
 
 ### App icon
 
-`SnagitStyle/AppIcon.icns` is generated, not hand-drawn. To regenerate:
+`HuzaifaShot/AppIcon.icns` is generated, not hand-drawn. To regenerate:
 ```bash
-swift tools/make_icon.swift /tmp/snagit.iconset
-iconutil -c icns /tmp/snagit.iconset -o SnagitStyle/AppIcon.icns
+swift tools/make_icon.swift /tmp/huzaifashot.iconset
+iconutil -c icns /tmp/huzaifashot.iconset -o HuzaifaShot/AppIcon.icns
 ```
 `Info.plist` sets `CFBundleIconFile = AppIcon`; `install.sh` copies the `.icns` into `Contents/Resources/`. The committed `.icns` is the source of truth for installs — regenerate and recommit if you change the artwork. macOS caches icons aggressively; a reinstall + relaunch (or `killall Dock`) may be needed to see changes.
 

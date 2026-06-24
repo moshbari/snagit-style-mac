@@ -5,7 +5,7 @@ import AppKit
 /// when the editor saves an annotated version.
 final class CaptureStore {
     static let shared = CaptureStore()
-    static let didChange = Notification.Name("SnagitCaptureStoreDidChange")
+    static let didChange = Notification.Name("HuzaifaShotCaptureStoreDidChange")
 
     private(set) var items: [URL] = []   // newest first
 
@@ -53,7 +53,7 @@ final class CaptureStore {
     private static func newFileName() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        return "Snagit \(formatter.string(from: Date())).png"
+        return "HuzaifaShot \(formatter.string(from: Date())).png"
     }
 
     private func notify() {
