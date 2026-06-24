@@ -20,7 +20,8 @@ final class HotKeyCenter {
 
         var ref: EventHotKeyRef?
         let hotKeyID = EventHotKeyID(signature: OSType(0x53_47_54_48), id: id) // 'SGTH'
-        RegisterEventHotKey(keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &ref)
+        let status = RegisterEventHotKey(keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &ref)
+        NSLog("[SnagitStyle] RegisterEventHotKey id=\(id) keyCode=\(keyCode) mods=\(modifiers) status=\(status) ref=\(ref != nil)")
         if let ref = ref { refs.append(ref) }
     }
 
@@ -49,6 +50,7 @@ final class HotKeyCenter {
                               nil,
                               &hkID)
             let center = Unmanaged<HotKeyCenter>.fromOpaque(userData).takeUnretainedValue()
+            NSLog("[SnagitStyle] hotkey fired id=\(hkID.id)")
             center.handlers[hkID.id]?()
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), nil)

@@ -46,8 +46,10 @@ final class ThumbnailItemView: NSView, NSDraggingSource {
         beginDraggingSession(with: [item], event: event, source: self)
     }
 
+    var onDoubleClick: (() -> Void)?
+
     override func mouseUp(with event: NSEvent) {
-        if event.clickCount == 2 { NSWorkspace.shared.open(url) }
+        if event.clickCount == 2 { onDoubleClick?() }
     }
 
     func draggingSession(_ session: NSDraggingSession,
@@ -126,6 +128,7 @@ final class ThumbnailTrayController: NSWindowController {
         for url in urls {
             let image = NSImage(contentsOf: url) ?? NSImage()
             let view = ThumbnailItemView(url: url, image: image)
+            view.onDoubleClick = { [weak self] in self?.openInEditor(url) }
             view.translatesAutoresizingMaskIntoConstraints = false
             view.widthAnchor.constraint(equalToConstant: 120).isActive = true
             view.heightAnchor.constraint(equalToConstant: 84).isActive = true
@@ -133,9 +136,26 @@ final class ThumbnailTrayController: NSWindowController {
         }
     }
 
+    private func openInEditor(_ url: URL) {
+        guard let image = NSImage(contentsOf: url) else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        let controller = EditorWindowController(image: image, fileURL: url)
+        controller.showWindow(nil)
+        controller.window?.makeKeyAndOrderFront(nil)
+    }
+
     func show() {
         CaptureStore.shared.reload()
-        if window?.isVisible != true { window?.center() }
+        if let window = window, !window.isVisible { positionAtBottom(window) }
         window?.orderFront(nil)
+    }
+
+    /// Park the tray centered along the bottom of the main screen, Snagit-style.
+    private func positionAtBottom(_ window: NSWindow) {
+        guard let screen = NSScreen.main else { window.center(); return }
+        let visible = screen.visibleFrame
+        let origin = NSPoint(x: visible.midX - window.frame.width / 2,
+                             y: visible.minY + 24)
+        window.setFrameOrigin(origin)
     }
 }

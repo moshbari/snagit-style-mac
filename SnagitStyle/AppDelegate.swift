@@ -1,20 +1,26 @@
 import AppKit
+import CoreGraphics
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
+    private var idleIcon: NSImage?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Settings.shared.ensureSaveFolderExists()
         CaptureStore.shared.reload()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "camera.viewfinder",
-                                   accessibilityDescription: "Snagit Style")
-        }
+        idleIcon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "Snagit Style")
+        statusItem.button?.image = idleIcon
 
         rebuildMenu()
         registerHotKeys()
+        Diag.log("launched; hotkeys registered")
+
+        // Show the tray on launch if there are existing captures (like Snagit).
+        if !CaptureStore.shared.items.isEmpty {
+            ThumbnailTrayController.shared.show()
+        }
 
         NotificationCenter.default.addObserver(self, selector: #selector(settingsChanged),
                                                name: Settings.didChange, object: nil)
@@ -54,13 +60,59 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func begin(_ mode: CaptureMode) {
+        Diag.log("begin capture mode=\(mode)")
+        flashStatusIcon()   // immediate visual proof the trigger fired
+
+        if !CGPreflightScreenCaptureAccess() {
+            Diag.log("Screen Recording permission NOT granted — requesting")
+            CGRequestScreenCaptureAccess()
+            promptForScreenRecording()
+            return
+        }
+
         CaptureService.capture(mode) { image in
+            Diag.log("capture done: image=\(image != nil)")
             guard let image = image else { return } // user cancelled
             let url = CaptureStore.shared.save(image)
+            Diag.log("saved: \(url?.lastPathComponent ?? "nil")")
             NSApp.activate(ignoringOtherApps: true)
+            ThumbnailTrayController.shared.show()   // pop the tray with the new thumbnail
             let controller = EditorWindowController(image: image, fileURL: url)
             controller.showWindow(nil)
             controller.window?.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    /// Briefly swap the menu-bar icon so a fired hotkey is visible even if the
+    /// capture step is blocked (e.g. by a missing permission).
+    private func flashStatusIcon() {
+        guard let button = statusItem.button else { return }
+        button.image = NSImage(systemSymbolName: "camera.metering.center.weighted",
+                               accessibilityDescription: nil)
+        button.contentTintColor = .systemRed
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            button.image = self?.idleIcon
+            button.contentTintColor = nil
+        }
+    }
+
+    private func promptForScreenRecording() {
+        let alert = NSAlert()
+        alert.messageText = "Screen Recording permission needed"
+        alert.informativeText = """
+        Snagit Style needs Screen Recording permission to capture your screen.
+
+        1. In the window that opens, enable SnagitStyle under Screen Recording.
+        2. Remove any older "SnagitStyle" entry first (it points to a previous build).
+        3. Quit and reopen Snagit Style from the menu bar.
+        """
+        alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Later")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn {
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+                NSWorkspace.shared.open(url)
+            }
         }
     }
 

@@ -54,9 +54,11 @@ swiftc \
     -sdk "$(xcrun --sdk macosx --show-sdk-path)" \
     -framework Cocoa \
     -framework CoreImage \
+    -framework CoreGraphics \
     -framework Carbon \
     -parse-as-library \
     -O \
+    "$SRC/Diagnostics.swift" \
     "$SRC/Settings.swift" \
     "$SRC/CaptureStore.swift" \
     "$SRC/Annotation.swift" \
